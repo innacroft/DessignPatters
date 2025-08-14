@@ -54,10 +54,16 @@ class PDFReport {
   --
   + __init__(sections)
   + generate_report(): void
+  --
+  + Validates sections are not empty
+  + Validates all sections are ReportSection instances
+  + Immutable sections tuple
 }
 
 class PDFReportBuilder {
   - _sections: List[ReportSection]
+  - _has_cover_page: bool
+  - _has_footer: bool
   --
   + __init__()
   + add_cover_page(client_name, logo): PDFReportBuilder
@@ -66,6 +72,12 @@ class PDFReportBuilder {
   + add_trend_analysis(trends): PDFReportBuilder
   + add_footer(advisor_contact): PDFReportBuilder
   + build(): PDFReport
+  - _reset(): void
+  --
+  + Each method includes try-catch validation
+  + Automatic logging of operations
+  + State tracking for mandatory sections
+  + Auto-reset after build() for safe reuse
 }
 
 class ReportDirector {
@@ -74,7 +86,6 @@ class ReportDirector {
   + __init__(builder)
   + construct_full_report(client_name, logo, movements, trends, contact): PDFReport
 }
-
 
 ReportSection <|-- CoverPage : implements
 ReportSection <|-- StatisticalCharts : implements

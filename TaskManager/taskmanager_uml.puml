@@ -1,0 +1,94 @@
+@startuml Task Manager Command Pattern
+!theme plain
+skinparam backgroundColor #f8f9fa
+skinparam classBackgroundColor #ffffff
+skinparam classBorderColor #2c3e50
+skinparam classFontColor #2c3e50
+skinparam abstractBackgroundColor #fef5e7
+skinparam abstractBorderColor #f39c12
+skinparam noteBackgroundColor #fff3cd
+skinparam noteBorderColor #ffc107
+
+title **Task Manager - Command Pattern Implementation**
+
+class Task {
+  - name: str
+  - completed: bool
+  --
+  + __init__(name: str)
+  + __repr__(): str
+  --
+  Simple data model for tasks
+}
+
+abstract class Command {
+  + {abstract} execute(): void
+  + {abstract} undo(): void
+  --
+  Command interface defining
+  the contract for all commands
+}
+
+class CreateTaskCommand {
+  - task_list: List[Task]
+  - task_name: str
+  - task: Task
+  --
+  + __init__(task_list, task_name)
+  + execute(): void
+  + undo(): void
+  --
+  Creates a new task and adds it to the list
+  Stores reference for undo operation
+}
+
+class CompleteTaskCommand {
+  - task: Task
+  - previous_status: bool
+  --
+  + __init__(task: Task)
+  + execute(): void
+  + undo(): void
+  --
+  Marks a task as completed
+  Remembers previous state for undo
+}
+
+class DeleteTaskCommand {
+  - task_list: List[Task]
+  - task: Task
+  - index: int
+  --
+  + __init__(task_list, task)
+  + execute(): void
+  + undo(): void
+  --
+  Removes task from list
+  Stores index position for restoration
+}
+
+class TaskManager {
+  - task_list: List[Task]
+  - history: List[Command]
+  --
+  + __init__()
+  + execute_command(command: Command): void
+  + undo_last_command(): bool
+  --
+  **Invoker** in Command Pattern
+  Manages command execution and history
+}
+
+' Relationships
+Command <|-- CreateTaskCommand : implements
+Command <|-- CompleteTaskCommand : implements
+Command <|-- DeleteTaskCommand : implements
+
+TaskManager o-- Command : "manages history of"
+TaskManager o-- Task : "contains list of"
+
+CreateTaskCommand ..> Task : "creates"
+CompleteTaskCommand o-- Task : "operates on"
+DeleteTaskCommand o-- Task : "operates on"
+
+@enduml
