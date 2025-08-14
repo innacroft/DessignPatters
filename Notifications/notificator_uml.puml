@@ -23,9 +23,7 @@ enum NotificationChannel {
   TELEGRAM = "telegram"
 }
 
-' =====================================
-' CLASS: Notification Message
-' =====================================
+
 class NotificationMessage {
   - recipient: str
   - subject: str
@@ -37,17 +35,13 @@ class NotificationMessage {
   + __str__(): str
 }
 
-' =====================================
-' ABSTRACT INTERFACE: Strategy Pattern
-' =====================================
+
 abstract class ChannelNotifier {
   + {abstract} send(message: NotificationMessage): bool
   + {abstract} get_channel(): NotificationChannel
 }
 
-' =====================================
-' CONCRETE IMPLEMENTATIONS
-' =====================================
+
 class EmailNotifier {
   + send(message: NotificationMessage): bool
   + get_channel(): NotificationChannel
@@ -73,17 +67,13 @@ class TelegramNotifier {
   + get_channel(): NotificationChannel
 }
 
-' =====================================
-' EXTENSION: OCP Demonstration
-' =====================================
+
 class PushNotifier {
   + send(message: NotificationMessage): bool
   + get_channel(): NotificationChannel
 }
 
-' =====================================
-' REGISTRY: Notifier Management
-' =====================================
+
 class NotifierRegistry {
   - notifiers: Dict[NotificationChannel, ChannelNotifier]
   --
@@ -95,9 +85,7 @@ class NotifierRegistry {
   + get_available_channels(): List[NotificationChannel]
 }
 
-' =====================================
-' FACADE: Main Service
-' =====================================
+
 class NotificationService {
   - registry: NotifierRegistry
   --
@@ -108,16 +96,12 @@ class NotificationService {
   + get_available_channels(): List[NotificationChannel]
 }
 
-' =====================================
-' DEMONSTRATION FUNCTION
-' =====================================
+
 class demo_notification_system <<function>> {
   + demo_notification_system(): void
 }
 
-' =====================================
-' INHERITANCE RELATIONSHIPS
-' =====================================
+
 ChannelNotifier <|-- EmailNotifier : implements
 ChannelNotifier <|-- SMSNotifier : implements
 ChannelNotifier <|-- WhatsAppNotifier : implements
@@ -125,9 +109,7 @@ ChannelNotifier <|-- SlackNotifier : implements
 ChannelNotifier <|-- TelegramNotifier : implements
 ChannelNotifier <|-- PushNotifier : "OCP Extension"
 
-' =====================================
-' COMPOSITION AND USAGE RELATIONSHIPS
-' =====================================
+
 NotificationService *-- NotifierRegistry : "contains"
 NotifierRegistry o-- ChannelNotifier : "manages multiple"
 NotificationMessage *-- NotificationChannel : "contains list"
