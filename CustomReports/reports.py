@@ -219,8 +219,6 @@ if __name__ == '__main__':
         .build()
     report3.generate_report()
 
-    logger.info("=== Testing Error Handling ===")
-    
     logger.info("=== Example 4 (missing cover page) ===")
     universal_builder.add_footer("contact@advisor.com").build()
 
