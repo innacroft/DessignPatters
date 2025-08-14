@@ -1,0 +1,62 @@
+@startuml File System Composite Pattern
+!theme plain
+skinparam backgroundColor #f8f9fa
+skinparam classBackgroundColor #ffffff
+skinparam classBorderColor #2c3e50
+skinparam classFontColor #2c3e50
+skinparam abstractBackgroundColor #fef5e7
+skinparam abstractBorderColor #f39c12
+skinparam noteBackgroundColor #fff3cd
+skinparam noteBorderColor #ffc107
+
+title **File System Manager - Composite Pattern Implementation**
+
+abstract class FileSystemComponent {
+  # name: str
+  --
+  + __init__(name: str)
+  + {abstract} get_size(): int
+  + {abstract} display(prefix: str = ""): void
+  --
+  **Component** in Composite Pattern
+  Defines interface for all objects
+  in the composition
+}
+
+class File {
+  - _size: int
+  --
+  + __init__(name: str, size: int)
+  + get_size(): int
+  + display(prefix: str = ""): void
+  --
+  **Leaf** in Composite Pattern
+  Represents end objects with no children
+  Implements primitive behaviors
+}
+
+class Folder {
+  - _children: List[FileSystemComponent]
+  --
+  + __init__(name: str)
+  + add(component: FileSystemComponent): void
+  + remove(component: FileSystemComponent): void
+  + get_size(): int
+  + display(prefix: str = ""): void
+  --
+  **Composite** in Composite Pattern
+  Stores child components and implements
+  child-related operations
+}
+
+' Inheritance relationships
+FileSystemComponent <|-- File : implements
+FileSystemComponent <|-- Folder : implements
+
+' Composition relationship
+Folder o-- FileSystemComponent : "contains 0..*"
+
+' Self-reference for recursive structure
+Folder o-- Folder : "can contain other folders"
+
+@enduml

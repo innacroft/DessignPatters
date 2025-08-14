@@ -1,0 +1,152 @@
+@startuml File System Composite Pattern Sequence
+!theme plain
+skinparam backgroundColor #f8f9fa
+skinparam sequenceBackgroundColor #ffffff
+skinparam sequenceBorderColor #2c3e50
+skinparam sequenceLifeLineBorderColor #2c3e50
+
+title **File System Composite Pattern - Operations Flow**
+
+participant "Client" as C
+participant "root_folder: Folder" as RF
+participant "subfolder1: Folder" as SF1
+participant "subfolder2: Folder" as SF2
+participant "file1: File" as F1
+participant "file2: File" as F2
+participant "file3: File" as F3
+
+== Building File System Structure ==
+
+C -> F1: new File("document.txt", 150)
+activate F1
+
+C -> F2: new File("image.jpg", 1200)
+activate F2
+
+C -> F3: new File("presentation.pptx", 500)
+activate F3
+
+C -> SF1: new Folder("Documents")
+activate SF1
+
+C -> SF2: new Folder("Pictures")
+activate SF2
+
+C -> RF: new Folder("My Drive")
+activate RF
+
+C -> SF1: add(file1)
+SF1 -> SF1: _children.append(file1)
+
+C -> SF2: add(file2)
+SF2 -> SF2: _children.append(file2)
+
+C -> RF: add(subfolder1)
+RF -> RF: _children.append(subfolder1)
+
+C -> RF: add(subfolder2)
+RF -> RF: _children.append(subfolder2)
+
+C -> RF: add(file3)
+RF -> RF: _children.append(file3)
+
+== Display Operation (Composite Pattern in Action) ==
+
+C -> RF: display("")
+activate RF
+RF -> RF: print("+ Folder: My Drive")
+loop for each child in _children
+    RF -> SF1: display("  ")
+    activate SF1
+    SF1 -> SF1: print("  + Folder: Documents")
+    loop for each child in SF1._children
+        SF1 -> F1: display("    ")
+        activate F1
+        F1 -> F1: print("    - File: document.txt (150 bytes)")
+        F1 --> SF1: 
+        deactivate F1
+    end
+    SF1 --> RF: 
+    deactivate SF1
+    
+    RF -> SF2: display("  ")
+    activate SF2
+    SF2 -> SF2: print("  + Folder: Pictures")
+    loop for each child in SF2._children
+        SF2 -> F2: display("    ")
+        activate F2
+        F2 -> F2: print("    - File: image.jpg (1200 bytes)")
+        F2 --> SF2: 
+        deactivate F2
+    end
+    SF2 --> RF: 
+    deactivate SF2
+    
+    RF -> F3: display("  ")
+    activate F3
+    F3 -> F3: print("  - File: presentation.pptx (500 bytes)")
+    F3 --> RF: 
+    deactivate F3
+end
+RF --> C: display completed
+deactivate RF
+
+== Size Calculation (Recursive Operation) ==
+
+C -> RF: get_size()
+activate RF
+RF -> RF: total_size = 0
+loop for each child in _children
+    RF -> SF1: get_size()
+    activate SF1
+    SF1 -> SF1: total_size = 0
+    loop for each child in SF1._children
+        SF1 -> F1: get_size()
+        activate F1
+        F1 --> SF1: 150
+        deactivate F1
+        SF1 -> SF1: total_size += 150
+    end
+    SF1 --> RF: 150
+    deactivate SF1
+    RF -> RF: total_size += 150
+    
+    RF -> SF2: get_size()
+    activate SF2
+    SF2 -> SF2: total_size = 0
+    loop for each child in SF2._children
+        SF2 -> F2: get_size()
+        activate F2
+        F2 --> SF2: 1200
+        deactivate F2
+        SF2 -> SF2: total_size += 1200
+    end
+    SF2 --> RF: 1200
+    deactivate SF2
+    RF -> RF: total_size += 1200
+    
+    RF -> F3: get_size()
+    activate F3
+    F3 --> RF: 500
+    deactivate F3
+    RF -> RF: total_size += 500
+end
+RF --> C: 1850 (total size)
+deactivate RF
+
+deactivate F1
+deactivate F2
+deactivate F3
+deactivate SF1
+deactivate SF2
+
+note over C,F3
+**Composite Pattern Key Features:**
+• Uniform interface for leaf and composite objects
+• Recursive operations naturally traverse the tree
+• Client treats individual objects and compositions uniformly
+• Operations delegate to children and aggregate results
+• Tree structure enables hierarchical organization
+end note
+
+@enduml
