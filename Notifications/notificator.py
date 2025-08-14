@@ -1,201 +1,234 @@
-from __future__ import annotations
+import logging
 from abc import ABC, abstractmethod
-from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-class NotificationFactory(ABC):
+class NotificationChannel(Enum):
     """
-    La clase NotificationFactory declara el método factory que devuelve
-    un objeto de una clase Notification. Las subclases proporcionan
-    la implementación específica para cada canal.
+    Enumeration of available notification channels.
+    Facilitates extension and avoids string type errors.
     """
+    EMAIL = "email"
+    SMS = "sms"
+    WHATSAPP = "whatsapp"
+    SLACK = "slack"
+    TELEGRAM = "telegram"
+
+
+class NotificationMessage:
+    """
+    Class that encapsulates all notification information.
+    Allows reusing the same message across multiple channels.
+    """
+
+    def __init__(self, recipient: str, subject: str, content: str,
+                 channels: List[NotificationChannel],
+                 metadata: Dict[str, Any] = None):
+        self.recipient = recipient
+        self.subject = subject
+        self.content = content
+        self.channels = channels
+        self.metadata = metadata or {}
+    
+    def __str__(self):
+        return (f"NotificationMessage(recipient='{self.recipient}', "
+                f"subject='{self.subject}')")
+
+
+class ChannelNotifier(ABC):
 
     @abstractmethod
-    def create_notification(self) -> Notification:
-        """
-        Método factory para crear notificaciones específicas
-        """
+    def send(self, message: NotificationMessage) -> bool:
         pass
 
-    def send_notification(self, message: str, recipient: str) -> str:
-        """
-        Método principal que usa el factory method para crear y enviar
-        notificaciones. Este método contiene la lógica de negocio común
-        para todas las notificaciones.
-        """
-        # Crear la notificación usando el factory method
-        notification = self.create_notification()
-        
-        # Preparar timestamp
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Enviar la notificación
-        result = notification.send(message, recipient, timestamp)
-        
-        return result
-
-
-"""
-Implementaciones concretas del Factory para diferentes canales
-"""
-
-
-class EmailNotificationFactory(NotificationFactory):
-    """
-    Factory para crear notificaciones por email
-    """
-    
-    def create_notification(self) -> Notification:
-        return EmailNotification()
-
-
-class SMSNotificationFactory(NotificationFactory):
-    """
-    Factory para crear notificaciones por SMS
-    """
-    
-    def create_notification(self) -> Notification:
-        return SMSNotification()
-
-
-class SlackNotificationFactory(NotificationFactory):
-    """
-    Factory para crear notificaciones por Slack
-    """
-    
-    def create_notification(self) -> Notification:
-        return SlackNotification()
-
-
-class PushNotificationFactory(NotificationFactory):
-    """
-    Factory para crear notificaciones push
-    """
-    
-    def create_notification(self) -> Notification:
-        return PushNotification()
-
-
-class Notification(ABC):
-    """
-    Interface base para todas las notificaciones.
-    Define el método que deben implementar todos los canales.
-    """
-
     @abstractmethod
-    def send(self, message: str, recipient: str, timestamp: str) -> str:
-        """
-        Método para enviar la notificación
-        """
+    def get_channel(self) -> NotificationChannel:
         pass
 
 
-"""
-Implementaciones concretas de notificaciones para cada canal
-"""
+class EmailNotifier(ChannelNotifier):
+    def send(self, message: NotificationMessage) -> bool:
+        try:
+            logger.info("📧 Sending email")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Error sending email: {e}")
+            return False
+
+    def get_channel(self) -> NotificationChannel:
+        return NotificationChannel.EMAIL
 
 
-class EmailNotification(Notification):
-    def send(self, message: str, recipient: str, timestamp: str) -> str:
-        return f"📧 EMAIL enviado a {recipient} [{timestamp}]\n" \
-               f"   Asunto: Notificación importante\n" \
-               f"   Mensaje: {message}\n" \
-               f"   Estado: ✅ Entregado"
-
-
-class SMSNotification(Notification):
-    def send(self, message: str, recipient: str, timestamp: str) -> str:
-        return f"📱 SMS enviado a {recipient} [{timestamp}]\n" \
-               f"   Mensaje: {message}\n" \
-               f"   Estado: ✅ Entregado"
-
-
-class SlackNotification(Notification):
-    def send(self, message: str, recipient: str, timestamp: str) -> str:
-        return f"💬 SLACK enviado a #{recipient} [{timestamp}]\n" \
-               f"   Mensaje: {message}\n" \
-               f"   Estado: ✅ Entregado"
-
-
-class PushNotification(Notification):
-    def send(self, message: str, recipient: str, timestamp: str) -> str:
-        return f"🔔 PUSH enviado a {recipient} [{timestamp}]\n" \
-               f"   Título: Nueva notificación\n" \
-               f"   Mensaje: {message}\n" \
-               f"   Estado: ✅ Entregado"
-
-
-class NotificationManager:
-    """
-    Clase para gestionar múltiples canales de notificación
-    """
+class SMSNotifier(ChannelNotifier):
+    def send(self, message: NotificationMessage) -> bool:
+        try:
+            logger.info("📱 Sending SMS")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Error sending SMS: {e}")
+            return False
     
+    def get_channel(self) -> NotificationChannel:
+        return NotificationChannel.SMS
+
+
+class WhatsAppNotifier(ChannelNotifier):
+    def send(self, message: NotificationMessage) -> bool:
+        try:
+            logger.info(f"💬 Sending WhatsApp")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Error sending WhatsApp: {e}")
+            return False
+
+    def get_channel(self) -> NotificationChannel:
+        return NotificationChannel.WHATSAPP
+
+
+class SlackNotifier(ChannelNotifier):   
+    def send(self, message: NotificationMessage) -> bool:
+        try:
+            logger.info(f"🔔 Sending Slack")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Error sending Slack: {e}")
+            return False
+
+    def get_channel(self) -> NotificationChannel:
+        return NotificationChannel.SLACK
+
+
+class TelegramNotifier(ChannelNotifier):
+    def send(self, message: NotificationMessage) -> bool:
+        try:
+            logger.info(f"✈️ Sending Telegram")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Error sending Telegram: {e}")
+            return False
+
+    def get_channel(self) -> NotificationChannel:
+        return NotificationChannel.TELEGRAM
+
+
+class NotifierRegistry:
+    """
+    Dynamic registry of notifiers.
+    Allows adding/removing channels at runtime.
+    """
     def __init__(self):
-        self.factories = {
-            'email': EmailNotificationFactory(),
-            'sms': SMSNotificationFactory(),
-            'slack': SlackNotificationFactory(),
-            'push': PushNotificationFactory()
-        }
-    
-    def send_notification(self, channel: str, message: str,
-                          recipient: str) -> str:
-        """
-        Envía una notificación por el canal especificado
-        """
-        if channel not in self.factories:
-            available_channels = list(self.factories.keys())
-            return f"❌ Error: Canal '{channel}' no soportado. " \
-                   f"Canales disponibles: {available_channels}"
-        
-        factory = self.factories[channel]
-        return factory.send_notification(message, recipient)
-    
-    def send_to_multiple_channels(self, channels: list, message: str,
-                                  recipient: str) -> str:
-        """
-        Envía la misma notificación a múltiples canales
-        """
-        results = []
-        for channel in channels:
-            result = self.send_notification(channel, message, recipient)
-            results.append(result)
-        
-        return "\n\n".join(results)
+        self.notifiers: Dict[NotificationChannel, ChannelNotifier] = {}
+        self._register_default_channels()
+
+    def _register_default_channels(self):
+        self.register_channel(EmailNotifier())
+        self.register_channel(SMSNotifier())
+        self.register_channel(WhatsAppNotifier())
+        self.register_channel(SlackNotifier())
+        self.register_channel(TelegramNotifier())
+
+    def register_channel(self, notifier: ChannelNotifier):
+        channel = notifier.get_channel()
+        self.notifiers[channel] = notifier
+        logger.info(f"✅ Channel registered: {channel.value}")
+
+    def remove_channel(self, channel: NotificationChannel):
+        if channel in self.notifiers:
+            del self.notifiers[channel]
+            logger.info(f"🗑️ Channel removed: {channel.value}")
+        else:
+            logger.warning(f"⚠️ Channel not found: {channel.value}")
+
+    def get_notifier(self, channel: NotificationChannel) -> ChannelNotifier:
+        """Gets the notifier for a specific channel."""
+        return self.notifiers.get(channel)
+
+    def get_available_channels(self) -> List[NotificationChannel]:
+        """Returns the list of available channels."""
+        return list(self.notifiers.keys())
 
 
-def demo_notifications():
+class NotificationService:
     """
-    Función de demostración para mostrar cómo usar el sistema de notificaciones
+    Main service for sending notifications.
+    Coordinates sending to multiple channels without duplicating logic.
     """
-    print("=== SISTEMA DE NOTIFICACIONES MULTICANAL ===\n")
-    
-    # Crear el gestor de notificaciones
-    manager = NotificationManager()
-    
-    # Mensaje y destinatario de ejemplo
-    message = "¡Tu pedido ha sido procesado exitosamente!"
-    recipient = "usuario@ejemplo.com"
-    
-    print("📋 Enviando notificación individual por cada canal:\n")
-    
-    # Enviar por cada canal individualmente
-    channels = ['email', 'sms', 'slack', 'push']
-    for channel in channels:
-        result = manager.send_notification(channel, message, recipient)
-        print(f"{result}\n")
-    
-    print("\n" + "="*50 + "\n")
-    print("📡 Enviando notificación a múltiples canales simultáneamente:\n")
-    
-    # Enviar a múltiples canales a la vez
-    multi_result = manager.send_to_multiple_channels(
-        ['email', 'sms', 'push'],
-        "Recordatorio: Tu cita es mañana a las 3 PM",
-        "cliente@empresa.com"
+
+    def __init__(self):
+        self.registry = NotifierRegistry()
+
+    def send_notification(self, message: NotificationMessage) -> Dict[str, bool]:
+        logger.info(f"🚀 Starting notification sending to {message.recipient}")
+        results = {}
+        for channel in message.channels:
+            notifier = self.registry.get_notifier(channel)
+            if notifier:
+                try:
+                    result = notifier.send(message)
+                    results[channel.value] = result
+                    status = "✅ Success" if result else "❌ Failed"
+                    logger.info(f"   {channel.value}: {status}")
+                except Exception as e:
+                    logger.error(f"   {channel.value}: ❌ Error - {e}")
+                    results[channel.value] = False
+            else:
+                logger.warning(f"   {channel.value}: ⚠️ Channel not available")
+                results[channel.value] = False
+        successful = sum(1 for r in results.values() if r)
+        total = len(results)
+        logger.info(f"📊 Summary: {successful}/{total} successful")
+
+        return results
+
+    def register_new_channel(self, notifier: ChannelNotifier):
+        self.registry.register_channel(notifier)
+
+    def remove_channel(self, channel: NotificationChannel):
+        self.registry.remove_channel(channel)
+
+    def get_available_channels(self) -> List[NotificationChannel]:
+        return self.registry.get_available_channels()
+
+
+
+class PushNotifier(ChannelNotifier):
+    def send(self, message: NotificationMessage) -> bool:
+        try:
+            logger.info(f"🔔 Sending Push to {message.recipient}: {message.content}")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Error sending Push: {e}")
+            return False
+
+    def get_channel(self) -> NotificationChannel:
+        return NotificationChannel.TELEGRAM
+
+
+def demo_notification_system():
+    service = NotificationService()
+    message = NotificationMessage(
+        recipient="customer@company.com",
+        subject="Order Confirmed",
+        content="Your order #12345 has been processed successfully.",
+        channels=[
+            NotificationChannel.EMAIL, NotificationChannel.SMS,
+            NotificationChannel.WHATSAPP],
+        metadata={"order_id": "12345", "priority": "high"}
     )
-    print(multi_result)
+
+    # Send notification
+    print(f"\n📤 Sending notification to: {message.recipient}")
+    print(f"📋 Using channels: {[c.value for c in message.channels]}")
+    print("-" * 50)
+    results = service.send_notification(message)
+
+    print(f"\n✅ Demo completed successfully! {results}")
+    print("=" * 50)
 
 
 if __name__ == "__main__":
-    demo_notifications()
+    demo_notification_system()
