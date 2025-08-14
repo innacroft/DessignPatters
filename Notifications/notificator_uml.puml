@@ -1,0 +1,119 @@
+@startuml Multi-Channel Notification System
+!theme plain
+skinparam backgroundColor #f8f9fa
+skinparam classBackgroundColor #ffffff
+skinparam classBorderColor #2c3e50
+skinparam classFontColor #2c3e50
+skinparam enumBackgroundColor #e8f4fd
+skinparam enumBorderColor #3498db
+skinparam enumFontColor #2c3e50
+skinparam abstractBackgroundColor #fef5e7
+skinparam abstractBorderColor #f39c12
+skinparam noteBackgroundColor #fff3cd
+skinparam noteBorderColor #ffc107
+
+' =====================================
+' ENUM: Notification Channels
+' =====================================
+enum NotificationChannel {
+  EMAIL = "email"
+  SMS = "sms" 
+  WHATSAPP = "whatsapp"
+  SLACK = "slack"
+  TELEGRAM = "telegram"
+}
+
+
+class NotificationMessage {
+  - recipient: str
+  - subject: str
+  - content: str
+  - channels: List[NotificationChannel]
+  - metadata: Dict[str, Any]
+  --
+  + __init__(recipient, subject, content, channels, metadata=None)
+  + __str__(): str
+}
+
+
+abstract class ChannelNotifier {
+  + {abstract} send(message: NotificationMessage): bool
+  + {abstract} get_channel(): NotificationChannel
+}
+
+
+class EmailNotifier {
+  + send(message: NotificationMessage): bool
+  + get_channel(): NotificationChannel
+}
+
+class SMSNotifier {
+  + send(message: NotificationMessage): bool
+  + get_channel(): NotificationChannel
+}
+
+class WhatsAppNotifier {
+  + send(message: NotificationMessage): bool
+  + get_channel(): NotificationChannel
+}
+
+class SlackNotifier {
+  + send(message: NotificationMessage): bool
+  + get_channel(): NotificationChannel
+}
+
+class TelegramNotifier {
+  + send(message: NotificationMessage): bool
+  + get_channel(): NotificationChannel
+}
+
+
+class PushNotifier {
+  + send(message: NotificationMessage): bool
+  + get_channel(): NotificationChannel
+}
+
+
+class NotifierRegistry {
+  - notifiers: Dict[NotificationChannel, ChannelNotifier]
+  --
+  + __init__()
+  - _register_default_channels(): void
+  + register_channel(notifier: ChannelNotifier): void
+  + remove_channel(channel: NotificationChannel): void
+  + get_notifier(channel: NotificationChannel): ChannelNotifier
+  + get_available_channels(): List[NotificationChannel]
+}
+
+
+class NotificationService {
+  - registry: NotifierRegistry
+  --
+  + __init__()
+  + send_notification(message: NotificationMessage): Dict[str, bool]
+  + register_new_channel(notifier: ChannelNotifier): void
+  + remove_channel(channel: NotificationChannel): void
+  + get_available_channels(): List[NotificationChannel]
+}
+
+
+class demo_notification_system <<function>> {
+  + demo_notification_system(): void
+}
+
+
+ChannelNotifier <|-- EmailNotifier : implements
+ChannelNotifier <|-- SMSNotifier : implements
+ChannelNotifier <|-- WhatsAppNotifier : implements
+ChannelNotifier <|-- SlackNotifier : implements
+ChannelNotifier <|-- TelegramNotifier : implements
+ChannelNotifier <|-- PushNotifier : "OCP Extension"
+
+
+NotificationService *-- NotifierRegistry : "contains"
+NotifierRegistry o-- ChannelNotifier : "manages multiple"
+NotificationMessage *-- NotificationChannel : "contains list"
+NotificationService ..> NotificationMessage : "processes"
+demo_notification_system ..> NotificationService : "uses"
+
+@enduml
