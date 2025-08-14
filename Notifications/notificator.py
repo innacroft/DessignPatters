@@ -201,15 +201,12 @@ def demo_notification_system():
             NotificationChannel.WHATSAPP],
         metadata={"order_id": "12345", "priority": "high"}
     )
-
-    # Send notification
-    print(f"\nSending notification to: {message.recipient}")
-    print(f"Using channels: {[c.value for c in message.channels]}")
-    print("-" * 50)
+    logger.info(f"\nSending notification to: {message.recipient}")
+    logger.info(f"Using channels: {[c.value for c in message.channels]}")
+    logger.info("-" * 50)
     results = service.send_notification(message)
-
-    print(f"\nDemo completed successfully! {results}")
-    print("=" * 50)
+    logger.info(f"\nDemo completed successfully! {results}")
+    logger.info("=" * 50)
 
 
 if __name__ == "__main__":
