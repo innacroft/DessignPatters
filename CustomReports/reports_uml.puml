@@ -1,0 +1,91 @@
+@startuml PDF Report Builder System
+!theme plain
+skinparam backgroundColor #f8f9fa
+skinparam classBackgroundColor #ffffff
+skinparam classBorderColor #2c3e50
+skinparam classFontColor #2c3e50
+skinparam abstractBackgroundColor #fef5e7
+skinparam abstractBorderColor #f39c12
+skinparam noteBackgroundColor #fff3cd
+skinparam noteBorderColor #ffc107
+
+abstract class ReportSection {
+  + {abstract} generate(): void
+}
+
+class CoverPage {
+  - client_name: str
+  - logo: str
+  --
+  + __init__(client_name, logo)
+  + generate(): void
+}
+
+class StatisticalCharts {
+  - data: str
+  --
+  + __init__(data)
+  + generate(): void
+}
+
+class RecentMovementsTable {
+  - movements: str
+  --
+  + __init__(movements)
+  + generate(): void
+}
+
+class TrendAnalysis {
+  - trends: str
+  --
+  + __init__(trends)
+  + generate(): void
+}
+
+class Footer {
+  - advisor_contact: str
+  --
+  + __init__(advisor_contact)
+  + generate(): void
+}
+
+class PDFReport {
+  - _sections: tuple[ReportSection]
+  --
+  + __init__(sections)
+  + generate_report(): void
+}
+
+class PDFReportBuilder {
+  - _sections: List[ReportSection]
+  --
+  + __init__()
+  + add_cover_page(client_name, logo): PDFReportBuilder
+  + add_charts(data): PDFReportBuilder
+  + add_recent_movements_table(movements): PDFReportBuilder
+  + add_trend_analysis(trends): PDFReportBuilder
+  + add_footer(advisor_contact): PDFReportBuilder
+  + build(): PDFReport
+}
+
+class ReportDirector {
+  - _builder: PDFReportBuilder
+  --
+  + __init__(builder)
+  + construct_full_report(client_name, logo, movements, trends, contact): PDFReport
+}
+
+
+ReportSection <|-- CoverPage : implements
+ReportSection <|-- StatisticalCharts : implements
+ReportSection <|-- RecentMovementsTable : implements
+ReportSection <|-- TrendAnalysis : implements
+ReportSection <|-- Footer : implements
+
+PDFReport *-- ReportSection : "contains multiple"
+PDFReportBuilder o-- ReportSection : "creates and manages"
+PDFReportBuilder ..> PDFReport : "builds"
+ReportDirector *-- PDFReportBuilder : "uses"
+ReportDirector ..> PDFReport : "constructs"
+
+@enduml
