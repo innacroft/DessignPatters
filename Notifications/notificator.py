@@ -56,7 +56,7 @@ class EmailNotifier(ChannelNotifier):
             logger.info("📧 Sending email")
             return True
         except Exception as e:
-            logger.error(f"❌ Error sending email: {e}")
+            logger.error(f"Error sending email: {e}")
             return False
 
     def get_channel(self) -> NotificationChannel:
@@ -66,10 +66,10 @@ class EmailNotifier(ChannelNotifier):
 class SMSNotifier(ChannelNotifier):
     def send(self, message: NotificationMessage) -> bool:
         try:
-            logger.info("📱 Sending SMS")
+            logger.info("Sending SMS")
             return True
         except Exception as e:
-            logger.error(f"❌ Error sending SMS: {e}")
+            logger.error(f"Error sending SMS: {e}")
             return False
     
     def get_channel(self) -> NotificationChannel:
@@ -79,10 +79,10 @@ class SMSNotifier(ChannelNotifier):
 class WhatsAppNotifier(ChannelNotifier):
     def send(self, message: NotificationMessage) -> bool:
         try:
-            logger.info(f"💬 Sending WhatsApp")
+            logger.info(f"Sending WhatsApp")
             return True
         except Exception as e:
-            logger.error(f"❌ Error sending WhatsApp: {e}")
+            logger.error(f"Error sending WhatsApp: {e}")
             return False
 
     def get_channel(self) -> NotificationChannel:
@@ -92,10 +92,10 @@ class WhatsAppNotifier(ChannelNotifier):
 class SlackNotifier(ChannelNotifier):   
     def send(self, message: NotificationMessage) -> bool:
         try:
-            logger.info(f"🔔 Sending Slack")
+            logger.info(f"Sending Slack")
             return True
         except Exception as e:
-            logger.error(f"❌ Error sending Slack: {e}")
+            logger.error(f"Error sending Slack: {e}")
             return False
 
     def get_channel(self) -> NotificationChannel:
@@ -105,10 +105,10 @@ class SlackNotifier(ChannelNotifier):
 class TelegramNotifier(ChannelNotifier):
     def send(self, message: NotificationMessage) -> bool:
         try:
-            logger.info(f"✈️ Sending Telegram")
+            logger.info(f"Sending Telegram")
             return True
         except Exception as e:
-            logger.error(f"❌ Error sending Telegram: {e}")
+            logger.error(f"Error sending Telegram: {e}")
             return False
 
     def get_channel(self) -> NotificationChannel:
@@ -134,14 +134,14 @@ class NotifierRegistry:
     def register_channel(self, notifier: ChannelNotifier):
         channel = notifier.get_channel()
         self.notifiers[channel] = notifier
-        logger.info(f"✅ Channel registered: {channel.value}")
+        logger.info(f"Channel registered: {channel.value}")
 
     def remove_channel(self, channel: NotificationChannel):
         if channel in self.notifiers:
             del self.notifiers[channel]
-            logger.info(f"🗑️ Channel removed: {channel.value}")
+            logger.info(f"Channel removed: {channel.value}")
         else:
-            logger.warning(f"⚠️ Channel not found: {channel.value}")
+            logger.warning(f"Channel not found: {channel.value}")
 
     def get_notifier(self, channel: NotificationChannel) -> ChannelNotifier:
         """Gets the notifier for a specific channel."""
@@ -170,17 +170,17 @@ class NotificationService:
                 try:
                     result = notifier.send(message)
                     results[channel.value] = result
-                    status = "✅ Success" if result else "❌ Failed"
+                    status = "Success" if result else "Failed"
                     logger.info(f"   {channel.value}: {status}")
                 except Exception as e:
-                    logger.error(f"   {channel.value}: ❌ Error - {e}")
+                    logger.error(f"   {channel.value}: Error - {e}")
                     results[channel.value] = False
             else:
-                logger.warning(f"   {channel.value}: ⚠️ Channel not available")
+                logger.warning(f"   {channel.value}:  Channel not available")
                 results[channel.value] = False
         successful = sum(1 for r in results.values() if r)
         total = len(results)
-        logger.info(f"📊 Summary: {successful}/{total} successful")
+        logger.info(f"Summary: {successful}/{total} successful")
 
         return results
 
@@ -198,10 +198,10 @@ class NotificationService:
 class PushNotifier(ChannelNotifier):
     def send(self, message: NotificationMessage) -> bool:
         try:
-            logger.info(f"🔔 Sending Push to {message.recipient}: {message.content}")
+            logger.info(f"Sending Push to {message.recipient}: {message.content}")
             return True
         except Exception as e:
-            logger.error(f"❌ Error sending Push: {e}")
+            logger.error(f"Error sending Push: {e}")
             return False
 
     def get_channel(self) -> NotificationChannel:
@@ -221,12 +221,12 @@ def demo_notification_system():
     )
 
     # Send notification
-    print(f"\n📤 Sending notification to: {message.recipient}")
-    print(f"📋 Using channels: {[c.value for c in message.channels]}")
+    print(f"\nSending notification to: {message.recipient}")
+    print(f"Using channels: {[c.value for c in message.channels]}")
     print("-" * 50)
     results = service.send_notification(message)
 
-    print(f"\n✅ Demo completed successfully! {results}")
+    print(f"\nDemo completed successfully! {results}")
     print("=" * 50)
 
 
