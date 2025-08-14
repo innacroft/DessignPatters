@@ -8,10 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class NotificationChannel(Enum):
-    """
-    Enumeration of available notification channels.
-    Facilitates extension and avoids string type errors.
-    """
     EMAIL = "email"
     SMS = "sms"
     WHATSAPP = "whatsapp"
@@ -20,11 +16,6 @@ class NotificationChannel(Enum):
 
 
 class NotificationMessage:
-    """
-    Class that encapsulates all notification information.
-    Allows reusing the same message across multiple channels.
-    """
-
     def __init__(self, recipient: str, subject: str, content: str,
                  channels: List[NotificationChannel],
                  metadata: Dict[str, Any] = None):
@@ -33,7 +24,7 @@ class NotificationMessage:
         self.content = content
         self.channels = channels
         self.metadata = metadata or {}
-    
+
     def __str__(self):
         return (f"NotificationMessage(recipient='{self.recipient}', "
                 f"subject='{self.subject}')")
@@ -116,10 +107,6 @@ class TelegramNotifier(ChannelNotifier):
 
 
 class NotifierRegistry:
-    """
-    Dynamic registry of notifiers.
-    Allows adding/removing channels at runtime.
-    """
     def __init__(self):
         self.notifiers: Dict[NotificationChannel, ChannelNotifier] = {}
         self._register_default_channels()
@@ -153,16 +140,11 @@ class NotifierRegistry:
 
 
 class NotificationService:
-    """
-    Main service for sending notifications.
-    Coordinates sending to multiple channels without duplicating logic.
-    """
-
     def __init__(self):
         self.registry = NotifierRegistry()
 
     def send_notification(self, message: NotificationMessage) -> Dict[str, bool]:
-        logger.info(f"🚀 Starting notification sending to {message.recipient}")
+        logger.info(f"Starting notification sending to {message.recipient}")
         results = {}
         for channel in message.channels:
             notifier = self.registry.get_notifier(channel)
@@ -173,10 +155,10 @@ class NotificationService:
                     status = "Success" if result else "Failed"
                     logger.info(f"   {channel.value}: {status}")
                 except Exception as e:
-                    logger.error(f"   {channel.value}: Error - {e}")
+                    logger.error(f" {channel.value}: Error - {e}")
                     results[channel.value] = False
             else:
-                logger.warning(f"   {channel.value}:  Channel not available")
+                logger.warning(f" {channel.value}:  Channel not available")
                 results[channel.value] = False
         successful = sum(1 for r in results.values() if r)
         total = len(results)
