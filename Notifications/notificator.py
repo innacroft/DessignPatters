@@ -44,7 +44,7 @@ class ChannelNotifier(ABC):
 class EmailNotifier(ChannelNotifier):
     def send(self, message: NotificationMessage) -> bool:
         try:
-            logger.info("📧 Sending email")
+            logger.info("Sending email")
             return True
         except Exception as e:
             logger.error(f"Error sending email: {e}")
